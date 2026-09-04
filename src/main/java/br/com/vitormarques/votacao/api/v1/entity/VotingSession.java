@@ -1,5 +1,6 @@
 package br.com.vitormarques.votacao.api.v1.entity;
 
+import br.com.vitormarques.votacao.api.v1.enums.VotingSessionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

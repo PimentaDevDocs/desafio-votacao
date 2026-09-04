@@ -65,4 +65,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 "message", String.valueOf(error.getDefaultMessage())
         );
     }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+        problem.setTitle("Business rule violated");
+        return problem;
+    }
 }
