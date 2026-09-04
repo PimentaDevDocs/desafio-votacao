@@ -107,4 +107,21 @@ class VoteControllerIntegrationTest {
     private String votesUrl(Topic topic) {
         return "/api/v1/topics/" + topic.getId() + "/votes";
     }
+
+    @Test
+    void shouldRejectDuplicateVote() throws Exception {
+        var topic = topicWithSession(Duration.ofMinutes(1));
+        var body = "{\"memberId\": \"12345678901\", \"choice\": \"YES\"}";
+
+        mockMvc.perform(post(votesUrl(topic))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post(votesUrl(topic))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"memberId\": \"12345678901\", \"choice\": \"NO\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Member 12345678901 already voted on topic: " + topic.getId()));
+    }
 }
