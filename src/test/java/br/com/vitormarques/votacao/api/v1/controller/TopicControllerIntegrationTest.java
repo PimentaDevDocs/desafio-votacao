@@ -46,7 +46,10 @@ class TopicControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/topics")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\": \"  \"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.title").value("Invalid request"))
+                .andExpect(jsonPath("$.errors[0].field").value("title"));
     }
 
     @Test
@@ -64,6 +67,17 @@ class TopicControllerIntegrationTest {
     @Test
     void shouldReturn404WhenTopicDoesNotExist() throws Exception {
         mockMvc.perform(get("/api/v1/topics/999999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Topic not found: 999999"));
+    }
+
+    @Test
+    void shouldReturn400ForMalformedJson() throws Exception {
+        mockMvc.perform(post("/api/v1/topics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
     }
 }
