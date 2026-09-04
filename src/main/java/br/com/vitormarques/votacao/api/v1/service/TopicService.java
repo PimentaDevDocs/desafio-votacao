@@ -27,8 +27,12 @@ public class TopicService {
 
     @Transactional(readOnly = true)
     public TopicResponse findById(Long id) {
+        return TopicResponse.from(requireById(id));
+    }
+
+    @Transactional(readOnly = true)
+    public Topic requireById(Long id) {
         return repository.findById(id)
-                .map(TopicResponse::from)
                 .orElseThrow(() -> new TopicNotFoundException(id));
     }
 }

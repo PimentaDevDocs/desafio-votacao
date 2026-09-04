@@ -5,9 +5,7 @@ import br.com.vitormarques.votacao.api.v1.dto.VoteResponse;
 import br.com.vitormarques.votacao.api.v1.entity.Vote;
 import br.com.vitormarques.votacao.api.v1.exception.MemberAlreadyVotedException;
 import br.com.vitormarques.votacao.api.v1.exception.VotingSessionClosedException;
-import br.com.vitormarques.votacao.api.v1.exception.VotingSessionNotFoundException;
 import br.com.vitormarques.votacao.api.v1.repository.VoteRepository;
-import br.com.vitormarques.votacao.api.v1.repository.VotingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,12 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class VoteService {
 
     private final VoteRepository voteRepository;
-    private final VotingSessionRepository sessionRepository;
+    private final VotingSessionService sessionService;
 
     @Transactional
     public VoteResponse register(Long topicId, VoteRequest request) {
-        var session = sessionRepository.findByTopicId(topicId)
-                .orElseThrow(() -> new VotingSessionNotFoundException(topicId));
+        var session = sessionService.requireByTopicId(topicId);
 
         if (!session.isOpen()) {
             log.warn("Vote rejected, session closed topicId={} memberId={}", topicId, request.memberId());

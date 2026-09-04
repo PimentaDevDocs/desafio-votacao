@@ -3,10 +3,8 @@ package br.com.vitormarques.votacao.api.v1.service;
 import br.com.vitormarques.votacao.api.v1.dto.OpenVotingSessionRequest;
 import br.com.vitormarques.votacao.api.v1.dto.VotingSessionResponse;
 import br.com.vitormarques.votacao.api.v1.entity.VotingSession;
-import br.com.vitormarques.votacao.api.v1.exception.TopicNotFoundException;
 import br.com.vitormarques.votacao.api.v1.exception.VotingSessionAlreadyOpenedException;
 import br.com.vitormarques.votacao.api.v1.exception.VotingSessionNotFoundException;
-import br.com.vitormarques.votacao.api.v1.repository.TopicRepository;
 import br.com.vitormarques.votacao.api.v1.repository.VotingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +19,11 @@ import java.time.LocalDateTime;
 public class VotingSessionService {
 
     private final VotingSessionRepository sessionRepository;
-    private final TopicRepository topicRepository;
+    private final TopicService topicService;
 
     @Transactional
     public VotingSessionResponse open(Long topicId, OpenVotingSessionRequest request) {
-        var topic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new TopicNotFoundException(topicId));
+        var topic = topicService.requireById(topicId);
 
         if (sessionRepository.existsByTopicId(topicId)) {
             throw new VotingSessionAlreadyOpenedException(topicId);
@@ -41,8 +38,12 @@ public class VotingSessionService {
 
     @Transactional(readOnly = true)
     public VotingSessionResponse findByTopicId(Long topicId) {
+        return VotingSessionResponse.from(requireByTopicId(topicId));
+    }
+
+    @Transactional(readOnly = true)
+    public VotingSession requireByTopicId(Long topicId) {
         return sessionRepository.findByTopicId(topicId)
-                .map(VotingSessionResponse::from)
                 .orElseThrow(() -> new VotingSessionNotFoundException(topicId));
     }
 }
