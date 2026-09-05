@@ -41,11 +41,11 @@ class VoteControllerIntegrationTest {
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"memberId\": \"12345678901\", \"choice\": \"YES\"}"))
+                        .content("{\"memberId\": \"52998224725\", \"choice\": \"YES\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.topicId").value(topic.getId()))
-                .andExpect(jsonPath("$.memberId").value("12345678901"))
+                .andExpect(jsonPath("$.memberId").value("52998224725"))
                 .andExpect(jsonPath("$.choice").value("YES"));
     }
 
@@ -55,7 +55,7 @@ class VoteControllerIntegrationTest {
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"memberId\": \"12345678901\", \"choice\": \"NO\"}"))
+                        .content("{\"memberId\": \"52998224725\", \"choice\": \"NO\"}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422));
     }
@@ -66,7 +66,7 @@ class VoteControllerIntegrationTest {
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"memberId\": \"12345678901\", \"choice\": \"YES\"}"))
+                        .content("{\"memberId\": \"52998224725\", \"choice\": \"YES\"}"))
                 .andExpect(status().isNotFound());
     }
 
@@ -76,7 +76,7 @@ class VoteControllerIntegrationTest {
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"memberId\": \"12345678901\", \"choice\": \"MAYBE\"}"))
+                        .content("{\"memberId\": \"52998224725\", \"choice\": \"MAYBE\"}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -111,7 +111,7 @@ class VoteControllerIntegrationTest {
     @Test
     void shouldRejectDuplicateVote() throws Exception {
         var topic = topicWithSession(Duration.ofMinutes(1));
-        var body = "{\"memberId\": \"12345678901\", \"choice\": \"YES\"}";
+        var body = "{\"memberId\": \"52998224725\", \"choice\": \"YES\"}";
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,8 +120,19 @@ class VoteControllerIntegrationTest {
 
         mockMvc.perform(post(votesUrl(topic))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"memberId\": \"12345678901\", \"choice\": \"NO\"}"))
+                        .content("{\"memberId\": \"52998224725\", \"choice\": \"NO\"}"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Member 12345678901 already voted on topic: " + topic.getId()));
+                .andExpect(jsonPath("$.detail").value("Member 52998224725 already voted on topic: " + topic.getId()));
+    }
+
+    @Test
+    void shouldReturn404ForInvalidCpf() throws Exception {
+        var topic = topicWithSession(Duration.ofMinutes(1));
+
+        mockMvc.perform(post(votesUrl(topic))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"memberId\": \"11111111111\", \"choice\": \"YES\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("CPF not found: 11111111111"));
     }
 }

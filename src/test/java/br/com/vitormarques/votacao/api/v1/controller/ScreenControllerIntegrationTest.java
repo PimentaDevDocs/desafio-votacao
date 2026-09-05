@@ -59,14 +59,14 @@ class ScreenControllerIntegrationTest {
         var votesUrl = "http://test.local/api/v1/topics/" + topic.getId() + "/votes";
 
         mockMvc.perform(get("/api/v1/screens/topics/" + topic.getId() + "/vote")
-                        .param("memberId", "12345678901"))
+                        .param("memberId", "52998224725"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tipo").value("SELECAO"))
                 .andExpect(jsonPath("$.titulo").value("Votar: Reforma do estatuto"))
                 .andExpect(jsonPath("$.itens.length()").value(2))
                 .andExpect(jsonPath("$.itens[0].texto").value("Sim"))
                 .andExpect(jsonPath("$.itens[0].url").value(votesUrl))
-                .andExpect(jsonPath("$.itens[0].body.memberId").value("12345678901"))
+                .andExpect(jsonPath("$.itens[0].body.memberId").value("52998224725"))
                 .andExpect(jsonPath("$.itens[0].body.choice").value("YES"))
                 .andExpect(jsonPath("$.itens[1].texto").value("Não"))
                 .andExpect(jsonPath("$.itens[1].body.choice").value("NO"));

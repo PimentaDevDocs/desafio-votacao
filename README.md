@@ -48,16 +48,37 @@ dependem do Docker.
 | POST   | `/api/v1/topics/{id}/votes`   | Registra o voto (`memberId`, `choice`: `YES`/`NO`)               |
 | GET    | `/api/v1/topics/{id}/result`  | Resultado da votação                                             |
 
+## Elegibilidade do associado (bônus 1)
+
+O `memberId` do voto passa a ser o CPF do associado, só dígitos. Antes de gravar o voto a API consulta
+client (`EligibilityClient`), implementado aqui com o fake:
+
+- CPF com dígitos verificadores inválidos → `404` (`CPF not found`)
+- CPF válido → sorteio entre `ABLE_TO_VOTE` e `UNABLE_TO_VOTE`; `UNABLE` → `404` (`Member unable to vote`),
+  como pede o enunciado. Fora dele, `422` seria mais preciso, por ser regra de negócio e não recurso inexistente.
+
+O sorteio é 50/50 por padrão, então o mesmo CPF pode votar numa tentativa e ser recusado na
+próxima. Para testar o fluxo sem o sorteio, suba a api com a taxa em 1 (1/1):
+
+```
+bash
+ELIGIBILITY_ABLE_RATE=1 ./mvnw spring-boot:run
+```
+
+CPFs válidos para teste: `52998224725`, `11144477735`, `12345678909`.
+
+A integração real entra como outra implementação de `EligibilityClient`, sem alterar o `VoteService`.
+
 ## Erros
 
 Todas as respostas de erro seguem o formato RFC 7807 (`ProblemDetail`):
 
-| Status | Quando                                                                   |
-|--------|--------------------------------------------------------------------------|
-| 400    | Corpo inválido ou campo fora das regras de validação (lista em `errors`) |
-| 404    | Pauta ou sessão inexistente                                              |
-| 409    | Sessão já aberta, ou associado que já votou nesta pauta                  |
-| 422    | Voto em sessão encerrada                                                 |
+| Status | Quando                                                                          |
+|--------|---------------------------------------------------------------------------------|
+| 400    | Corpo inválido ou campo fora das regras de validação (lista em `errors`)        |
+| 404    | Pauta ou sessão inexistente; CPF inválido ou associado sem permissão para votar |
+| 409    | Sessão já aberta, ou associado que já votou nesta pauta                         |
+| 422    | Voto em sessão encerrada                                                        |
 
 ## Logs
 
@@ -72,4 +93,4 @@ estruturada, basta `logging.structured.format.console=ecs`.
 | pauta             | `Topic`                         |
 | sessão de votação | `VotingSession`                 |
 | voto Sim / Não    | `Vote`, `VoteChoice.YES` / `NO` |
-| associado         | `memberId`                      |
+| associado         | `memberId` (CPF)                |
