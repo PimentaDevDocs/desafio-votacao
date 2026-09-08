@@ -39,6 +39,9 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 Os testes de integração usam H2 em modo de compatibilidade com PostgreSQL as mesmas migrations Flyway não
 dependem do Docker.
 
+Cobertura pelo JaCoCo. Rodando `./mvnw verify` o relatório sai em `target/site/jacoco/index.html`
+(97% das instruções). No Actions ele fica como artefato de cada build.
+
 ## Endpoints
 
 | Método | Rota                          | Descrição                                                        |
@@ -90,10 +93,40 @@ k6 run --vus 200 --duration 60s perf/votes.js   # cenário maior
 ```
 
 Na minha máquina (Intel 10 gen, 16GB RAM, api e Postgres locais): 200 VUs por 60s deram 117.369 votos gravados,
-1.939 req/s, p95 de 190ms e 0% de erro. O GET /result com 117 mil votos na tabela respondeu em 2.217358s.
+1.939 req/s, p95 de 190ms e 0% de erro. O GET /result da pauta com 117 mil votos, com 218 mil na tabela,
+respondeu em 20ms.
 
 A mediana ficou em 97ms com pool de 20 conexões (`DB_POOL_SIZE`). Ou seja, o que sobe no pico é a fila
 pela conexão, não o processamento. Em produção o ajuste seria pool e réplica, não código.
+
+## Versionamento da API (bônus 3)
+
+Versão no path, `/api/v1/...`. Pensei em header (`Accept: application/vnd.voting.v2+json`) e em query string,
+mas path ganhou por três motivos:
+
+- É app mobile. Versão antiga do app fica instalada por meses, e com a versão na URL qualquer log, proxy ou
+  cache mostra na hora qual contrato aquela instalação usa. As telas do Anexo 1 já carregam URL absoluta,
+  então a versão vai junto.
+- Aparece no Swagger, no browser e no curl. Header versionado só funciona pra quem sabe que ele existe.
+- Roteamento fácil. Gateway manda `/api/v2` pra outro serviço sem olhar header.
+
+### O que muda de versão
+
+Só quebra de contrato: tirar ou renomear campo, mudar tipo, mudar o significado, mudar status de erro.
+Campo opcional novo, endpoint novo e valor novo em enum de resposta não quebram nada e ficam na mesma versão.
+
+### Como entraria uma v2
+
+`api.v1` tem só controller e dto. Service, repository, entity e o resto não têm versão e ficam em pacote
+neutro. A `api.v2` nasce do lado, com os controllers e dtos dela, usando o mesmo domínio. Versiona o
+contrato, não o negócio. No SpringDoc vira um grupo por versão.
+
+Hoje os services recebem e devolvem os dtos da v1. Com uma versão só é o mais simples. Quando a v2 tiver
+formato diferente, o mapeamento sobe pro controller (service devolve entidade, controller converte). É a
+próxima refatoração na mesma linha da que tirou o domínio de dentro de `api.v1`.
+
+A v1 continua no ar em paralelo, com data de desligamento avisada (headers `Deprecation` e `Sunset`), até
+os apps instalados migrarem.
 
 ## Erros
 
@@ -111,6 +144,32 @@ Todas as respostas de erro seguem o formato RFC 7807 (`ProblemDetail`):
 Todas as requisições recebem um `X-Correlation-Id` (gerado se o cliente não enviar), presente em
 todas as linhas de log daquela requisição e devolvido no header da resposta. Para saída JSON
 estruturada, basta `logging.structured.format.console=ecs`.
+
+## Decisões de projeto
+
+- `api.v1` só com controller e dto. Comecei com tudo dentro de `api.v1`. Quando fui escrever o
+  versionamento notei que a estrutura contradizia o texto (service, entity e repository não têm versão) e
+  movi o domínio pra pacote neutro antes de entregar.
+- Sessão sem scheduler. Aberta ou fechada é o `closes_at` comparado com o relógio na hora da leitura.
+  Sem job, sem coluna de status pra manter sincronizada.
+- Voto único garantido no banco, não em Java. `saveAndFlush` + UNIQUE vira 409. Um `existsBy` antes do
+  insert tem race condition; o teste de concorrência mostra isso.
+- Resultado por agregação. `SUM(CASE)` em cima do índice da constraint. Contador na sessão ia serializar
+  a escrita no lock de uma linha.
+- Postgres pra rodar, H2 só nos testes, os dois com as mesmas migrations e `ddl-auto=validate`. Os testes
+  validam o schema de verdade, não um schema que o Hibernate inventou.
+- Erro em RFC 7807 com o `ProblemDetail` do próprio Spring. Uma exceção base por status (`NotFound`,
+  `Conflict`, `BusinessRule`); o handler não sabe de regra de negócio.
+- `BaseEntity` só com id e as datas de auditoria. Sem `createdBy` porque não tem usuário autenticado, sem
+  soft delete porque nada é apagado. Voto é registro de assembleia.
+- Pauta sem update nem delete. Alterar depois de votada muda o que foi votado. Apagar destrói o registro.
+- `memberId` é o CPF (bônus 1). Um identificador só. `UNABLE_TO_VOTE` responde 404 porque o enunciado
+  pede; 422 seria mais certo.
+- Sem cache, fila nem Redis. Deu 117 mil votos por minuto num Postgres local sem nada disso. Colocar
+  infra antes de medir seria over-engineering.
+- CPF mascarado nos logs. Dado pessoal, só os três últimos dígitos.
+- Java 21 onde ajuda: record pra dto, `sealed interface` no contrato das telas, virtual thread no teste de
+  concorrência, text block nas queries e nos testes.
 
 ## Glossário
 
