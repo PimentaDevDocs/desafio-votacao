@@ -1,5 +1,7 @@
 # Voting API
 
+![CI](https://github.com/PimentaDevDocs/desafio-votacao/actions/workflows/ci.yml/badge.svg)
+
 API REST para gerenciamento de pautas e sessões de votação em assembleias cooperativas.
 Desafio entrege para processo seletivo da db completo em [docs/DESAFIO.md](docs/DESAFIO.md).
 
