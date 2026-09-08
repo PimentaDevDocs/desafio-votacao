@@ -32,11 +32,6 @@ class FakeEligibilityClientTest {
                 .isInstanceOf(InvalidCpfException.class);
     }
 
-    @Test
-    void shouldMaskAllButLastThreeDigits() {
-        assertThat(FakeEligibilityClient.mask(VALID_CPF)).isEqualTo("***725");
-    }
-
     private FakeEligibilityClient clientWithRate(double rate) {
         return new FakeEligibilityClient(new AppProperties("http://x", new AppProperties.Eligibility(rate)));
     }

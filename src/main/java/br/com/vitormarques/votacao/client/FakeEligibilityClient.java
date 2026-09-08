@@ -23,10 +23,6 @@ public class FakeEligibilityClient implements EligibilityClient {
         this.ableRate = properties.eligibility().ableRate();
     }
 
-    public static String mask(String cpf) {
-        return "***" + cpf.substring(cpf.length() - 3);
-    }
-
     @Override
     public EligibilityStatus check(String cpf) {
         if (!CpfValidator.isValid(cpf)) {
@@ -35,7 +31,7 @@ public class FakeEligibilityClient implements EligibilityClient {
         var status = random.nextDouble() < ableRate
                 ? EligibilityStatus.ABLE_TO_VOTE
                 : EligibilityStatus.UNABLE_TO_VOTE;
-        log.debug("Eligibility checked cpf={} status={}", mask(cpf), status);
+        log.debug("Eligibility checked cpf={} status={}", CpfValidator.mask(cpf), status);
         return status;
     }
 }

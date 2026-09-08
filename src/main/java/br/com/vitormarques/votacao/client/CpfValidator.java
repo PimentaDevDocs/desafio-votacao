@@ -13,6 +13,10 @@ public final class CpfValidator {
                 && checkDigit(cpf, 10) == cpf.charAt(10) - '0';
     }
 
+    public static String mask(String cpf) {
+        return "***" + cpf.substring(cpf.length() - 3);
+    }
+
     private static boolean allSameDigit(String cpf) {
         return cpf.chars().distinct().count() == 1;
     }

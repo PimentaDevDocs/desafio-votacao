@@ -24,4 +24,9 @@ class CpfValidatorTest {
     void shouldRejectNull() {
         assertThat(CpfValidator.isValid(null)).isFalse();
     }
+
+    @Test
+    void shouldMaskAllButLastThreeDigits() {
+        assertThat(CpfValidator.mask("52998224725")).isEqualTo("***725");
+    }
 }
