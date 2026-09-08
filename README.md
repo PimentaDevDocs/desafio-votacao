@@ -69,6 +69,30 @@ CPFs válidos para teste: `52998224725`, `11144477735`, `12345678909`.
 
 A integração real entra como outra implementação de `EligibilityClient`, sem alterar o `VoteService`.
 
+## Performance (bônus 2)
+
+O ponto crítico é o registro do voto. Ele foi feito pra não ler nada antes de gravar:
+
+- O voto é só um INSERT. Quem garante um voto por associado é a UNIQUE (voting_session_id, member_id),
+  não um select antes. Select antes tem race condition e custa uma leitura por voto.
+- A contagem usa esse mesmo índice com SUM(CASE) em uma query. Não carrega voto em memória.
+- Não tem contador na sessão. Se tivesse, todo voto ia brigar pelo lock da mesma linha.
+- Não precisei criar índice. As UNIQUE de vote e voting_session já cobrem as buscas.
+
+O teste de carga fica em `perf/votes.js` (Grafana). Precisa da api rodando com o sorteio do bônus 1
+desligado (`ELIGIBILITY_ABLE_RATE=1`) senão metade dos votos cai no 404:
+
+```bash
+k6 run perf/votes.js                            # 100 VUs, 30s
+k6 run --vus 200 --duration 60s perf/votes.js   # cenário maior
+```
+
+Na minha máquina (<CPU, RAM>, api e Postgres locais): 200 VUs por 60s deram 117.369 votos gravados,
+1.939 req/s, p95 de 190ms e 0% de erro. O GET /result com 117 mil votos na tabela respondeu em <Z>ms.
+
+A mediana ficou em 97ms com pool de 20 conexões (`DB_POOL_SIZE`). Ou seja, o que sobe no pico é a fila
+pela conexão, não o processamento. Em produção o ajuste seria pool e réplica, não código.
+
 ## Erros
 
 Todas as respostas de erro seguem o formato RFC 7807 (`ProblemDetail`):
