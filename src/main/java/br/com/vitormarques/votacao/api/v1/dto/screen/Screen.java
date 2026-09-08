@@ -1,6 +1,6 @@
 package br.com.vitormarques.votacao.api.v1.dto.screen;
 
-import br.com.vitormarques.votacao.api.v1.enums.ScreenType;
+import br.com.vitormarques.votacao.enums.ScreenType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;

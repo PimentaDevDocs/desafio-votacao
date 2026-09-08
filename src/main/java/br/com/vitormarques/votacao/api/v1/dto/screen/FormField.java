@@ -1,6 +1,6 @@
 package br.com.vitormarques.votacao.api.v1.dto.screen;
 
-import br.com.vitormarques.votacao.api.v1.enums.FieldType;
+import br.com.vitormarques.votacao.enums.FieldType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -1,7 +1,8 @@
 package br.com.vitormarques.votacao.api.v1.dto;
 
-import br.com.vitormarques.votacao.api.v1.enums.VotingResult;
-import br.com.vitormarques.votacao.api.v1.enums.VotingSessionStatus;
+import br.com.vitormarques.votacao.enums.VotingResult;
+import br.com.vitormarques.votacao.enums.VotingSessionStatus;
+import br.com.vitormarques.votacao.repository.VoteCount;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

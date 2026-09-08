@@ -1,7 +1,7 @@
 package br.com.vitormarques.votacao.api.v1.controller;
 
 import br.com.vitormarques.votacao.api.v1.dto.VotingResultResponse;
-import br.com.vitormarques.votacao.api.v1.service.VotingResultService;
+import br.com.vitormarques.votacao.service.VotingResultService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

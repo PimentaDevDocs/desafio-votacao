@@ -2,7 +2,7 @@ package br.com.vitormarques.votacao.api.v1.controller;
 
 import br.com.vitormarques.votacao.api.v1.dto.CreateTopicRequest;
 import br.com.vitormarques.votacao.api.v1.dto.TopicResponse;
-import br.com.vitormarques.votacao.api.v1.service.TopicService;
+import br.com.vitormarques.votacao.service.TopicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -1,12 +1,12 @@
 package br.com.vitormarques.votacao.api.v1.controller;
 
-import br.com.vitormarques.votacao.api.v1.entity.Topic;
-import br.com.vitormarques.votacao.api.v1.entity.Vote;
-import br.com.vitormarques.votacao.api.v1.entity.VotingSession;
-import br.com.vitormarques.votacao.api.v1.enums.VoteChoice;
-import br.com.vitormarques.votacao.api.v1.repository.TopicRepository;
-import br.com.vitormarques.votacao.api.v1.repository.VoteRepository;
-import br.com.vitormarques.votacao.api.v1.repository.VotingSessionRepository;
+import br.com.vitormarques.votacao.entity.Topic;
+import br.com.vitormarques.votacao.entity.Vote;
+import br.com.vitormarques.votacao.entity.VotingSession;
+import br.com.vitormarques.votacao.enums.VoteChoice;
+import br.com.vitormarques.votacao.repository.TopicRepository;
+import br.com.vitormarques.votacao.repository.VoteRepository;
+import br.com.vitormarques.votacao.repository.VotingSessionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

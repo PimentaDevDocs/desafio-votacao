@@ -1,7 +1,7 @@
 package br.com.vitormarques.votacao.api.v1.dto;
 
 
-import br.com.vitormarques.votacao.api.v1.entity.Topic;
+import br.com.vitormarques.votacao.entity.Topic;
 
 import java.time.LocalDateTime;
 

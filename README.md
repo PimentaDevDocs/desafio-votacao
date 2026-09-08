@@ -89,8 +89,8 @@ k6 run perf/votes.js                            # 100 VUs, 30s
 k6 run --vus 200 --duration 60s perf/votes.js   # cenário maior
 ```
 
-Na minha máquina (<CPU, RAM>, api e Postgres locais): 200 VUs por 60s deram 117.369 votos gravados,
-1.939 req/s, p95 de 190ms e 0% de erro. O GET /result com 117 mil votos na tabela respondeu em <Z>ms.
+Na minha máquina (Intel 10 gen, 16GB RAM, api e Postgres locais): 200 VUs por 60s deram 117.369 votos gravados,
+1.939 req/s, p95 de 190ms e 0% de erro. O GET /result com 117 mil votos na tabela respondeu em 2.217358s.
 
 A mediana ficou em 97ms com pool de 20 conexões (`DB_POOL_SIZE`). Ou seja, o que sobe no pico é a fila
 pela conexão, não o processamento. Em produção o ajuste seria pool e réplica, não código.

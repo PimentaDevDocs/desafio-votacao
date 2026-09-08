@@ -1,6 +1,6 @@
 package br.com.vitormarques.votacao.api.v1.dto;
 
-import br.com.vitormarques.votacao.api.v1.enums.VoteChoice;
+import br.com.vitormarques.votacao.enums.VoteChoice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
 package br.com.vitormarques.votacao.api.v1.controller;
 
 import br.com.vitormarques.votacao.api.v1.dto.screen.Screen;
-import br.com.vitormarques.votacao.api.v1.service.ScreenService;
+import br.com.vitormarques.votacao.service.ScreenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;

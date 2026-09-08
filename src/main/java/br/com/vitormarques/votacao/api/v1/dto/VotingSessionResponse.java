@@ -1,7 +1,7 @@
 package br.com.vitormarques.votacao.api.v1.dto;
 
-import br.com.vitormarques.votacao.api.v1.entity.VotingSession;
-import br.com.vitormarques.votacao.api.v1.enums.VotingSessionStatus;
+import br.com.vitormarques.votacao.entity.VotingSession;
+import br.com.vitormarques.votacao.enums.VotingSessionStatus;
 
 import java.time.LocalDateTime;
 
