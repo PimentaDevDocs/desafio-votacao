@@ -53,6 +53,40 @@ Cobertura pelo JaCoCo. Rodando `./mvnw verify` o relatório sai em `target/site/
 | POST   | `/api/v1/topics/{id}/votes`   | Registra o voto (`memberId`, `choice`: `YES`/`NO`)               |
 | GET    | `/api/v1/topics/{id}/result`  | Resultado da votação                                             |
 
+## Telas do cliente mobile (Anexo 1)
+
+O app não tem tela fixa. Ele pede pro servidor a descrição da tela e desenha a partir do JSON.
+O anexo descreve o comportamento (botão faz POST na `url` com o `body` mais os campos preenchidos)
+mas não define o formato do JSON; confirmei com a recruiter e o formato ficou a meu critério.
+Segui o que o anexo descreve: `tipo`, `titulo`, `itens`, e em cada botão ou opção `texto`, `url` e `body`.
+
+| Rota                                              | Tipo       | O que monta                                       |
+|---------------------------------------------------|------------|---------------------------------------------------|
+| `GET /api/v1/screens/topics/new`                  | FORMULARIO | Cadastro de pauta (título e descrição)            |
+| `GET /api/v1/screens/topics/{id}/session`         | FORMULARIO | Abertura de sessão (duração em minutos)           |
+| `GET /api/v1/screens/topics/{id}/vote?memberId=`  | SELECAO    | Sim / Não, cada opção com a url e o body do voto  |
+
+Exemplo da tela de voto:
+
+```json
+{
+  "tipo": "SELECAO",
+  "titulo": "Votar: Reforma do estatuto",
+  "itens": [
+    {"texto": "Sim", "url": "http://localhost:8080/api/v1/topics/1/votes", "body": {"memberId": "52998224725", "choice": "YES"}},
+    {"texto": "Não", "url": "http://localhost:8080/api/v1/topics/1/votes", "body": {"memberId": "52998224725", "choice": "NO"}}
+  ]
+}
+```
+
+O `memberId` vai na query porque tela SELECAO não tem campo de entrada, então o `memberId` precisa vir de quem pede a tela
+
+As urls são absolutas, montadas a partir de `APP_BASE_URL` (default `http://localhost:8080`). No emulador
+Android usa `http://10.0.2.2:8080`; em aparelho físico, o IP da máquina na rede.
+
+Os tipos de item são os três que o exemplo de POST do anexo mostra: `INPUT_TEXTO`, `INPUT_NUMERICO`,
+`INPUT_DATA`, mais `TEXTO` pra rótulo. Tudo isso fica em `api/v1/dto/screen`, um pacote só.
+
 ## Elegibilidade do associado (bônus 1)
 
 O `memberId` do voto passa a ser o CPF do associado, só dígitos. Antes de gravar o voto a API consulta
@@ -170,6 +204,8 @@ estruturada, basta `logging.structured.format.console=ecs`.
 - CPF mascarado nos logs. Dado pessoal, só os três últimos dígitos.
 - Java 21 onde ajuda: record pra dto, `sealed interface` no contrato das telas, virtual thread no teste de
   concorrência, text block nas queries e nos testes.
+- Formato das telas do Anexo 1. O anexo não define o JSON e a empresa confirmou que era escolha minha.
+  Fui pelo que o texto descreve e deixei tudo em `dto/screen` pra trocar fácil se o app usar outros nomes.
 
 ## Glossário
 
